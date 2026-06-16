@@ -110,7 +110,7 @@
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     padding: 0 24px;
-    height: 60px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -709,12 +709,27 @@
   }
 
   @media (max-width: 640px) {
-    .header { padding: 0 16px; }
-    #view-mes { padding: 12px; }
+    .header { padding: 0 12px; }
+    .header-logo { font-size: 18px; }
+    .btn-new-cita { padding: 7px 10px; font-size: 12px; }
+    .view-btn { padding: 5px 8px; font-size: 12px; }
+    #view-mes { padding: 8px; }
     #view-dia { padding: 12px; }
-    .month-cell { min-height: 70px; padding: 6px; }
-    .day-number { font-size: 12px; }
-    .stat-row { font-size: 10px; }
+    .month-cell { min-height: 58px; padding: 4px; }
+    .day-number { font-size: 11px; margin-bottom: 3px; }
+    .stat-row { font-size: 9px; gap: 3px; }
+    .stat-dot { width: 6px; height: 6px; }
+    .day-badge { font-size: 9px; padding: 1px 4px; }
+    .month-header-cell { font-size: 10px; padding: 6px 2px; }
+    .stats-bar { padding: 8px 12px; gap: 8px; }
+    .stat-card { padding: 6px 10px; gap: 6px; }
+    .stat-value { font-size: 15px; }
+    .stat-label { font-size: 10px; }
+    .stat-icon { font-size: 14px; }
+    .nav-bar { padding: 8px 12px; }
+    .nav-period { font-size: 14px; }
+    .legend { padding: 6px 12px; gap: 10px; }
+    .legend-item { font-size: 11px; }
   }
 </style>
 </head>
@@ -737,8 +752,10 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-left">
-      <span class="header-logo">🦷 Agenda</span>
-      <span class="header-subtitle" id="doctor-name-header">Dr. Rodríguez</span>
+      <div>
+        <div class="header-logo">🦷 Agenda</div>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1" id="doctor-name-header">Dr. Rodríguez</div>
+      </div>
     </div>
     <div class="header-actions">
       <div class="view-toggle">
@@ -1156,11 +1173,11 @@ function renderMes() {
       </div>`;
 
     if (bloq) {
-      html += `<div class="day-stats"><div class="stat-row" style="color:var(--bloqueado)">🔒 Bloqueado</div></div>`;
+      html += `<div class="day-stats"><div class="stat-row" style="color:var(--bloqueado)">🔒</div></div>`;
     } else if (total > 0) {
       html += `<div class="day-stats">
-        <div class="stat-row"><div class="stat-dot" style="background:var(--libre)"></div>${libres} libre${libres !== 1 ? 's' : ''}</div>
-        ${ocupados > 0 ? `<div class="stat-row"><div class="stat-dot" style="background:var(--ocupado)"></div>${ocupados} ocupado${ocupados !== 1 ? 's' : ''}</div>` : ''}
+        <div class="stat-row"><div class="stat-dot" style="background:var(--libre)"></div>${libres} lib.</div>
+        ${ocupados > 0 ? `<div class="stat-row"><div class="stat-dot" style="background:var(--ocupado)"></div>${ocupados} ocup.</div>` : ''}
         <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct}%"></div></div>
       </div>`;
     }
@@ -1244,7 +1261,7 @@ function renderSemana() {
       const heightPx = duration;
       const status = getSlotStatus(slot);
       const titulo = slot.fields.titulo_cita || '';
-      const nombrePaciente = titulo ? titulo.split('·')[0].trim() : '';
+      const nombrePaciente = titulo ? titulo.split('·')[0].trim() : getNombrePacienteSlot(slot.id);
       const label = status === 'ocupado' ? (nombrePaciente || 'Cita') : (status === 'libre' ? '✓ Libre' : '🔒');
 
       html += `<div class="week-slot-block ${status}" 
@@ -1291,7 +1308,7 @@ function renderDia() {
       const horaFin = formatHour(slot.fields.fecha_hora_fin);
       const titulo = slot.fields.titulo_cita || '';
       // Extraer solo el nombre del paciente del titulo (formato: "Nombre · fecha")
-      const nombrePaciente = titulo ? titulo.split('·')[0].trim() : '';
+      const nombrePaciente = titulo ? titulo.split('·')[0].trim() : getNombrePacienteSlot(slot.id);
 
       html += `<div class="day-slot-card ${status}" onclick="clickSlot('${slot.id}')">
         <div class="slot-time">${hora}</div>
@@ -1385,6 +1402,17 @@ async function cancelarCita(slotId) {
   } catch(e) {
     showToast('Error al cancelar', 'error');
   }
+}
+
+function getNombrePacienteSlot(slotId) {
+  // Buscar en citasData la cita que tiene este slot
+  const cita = citasData.find(c => {
+    const slots = c.fields.slot_disponibilidad || [];
+    return slots.includes(slotId);
+  });
+  if (!cita) return '';
+  const titulo = cita.fields.titulo_cita || '';
+  return titulo ? titulo.split('·')[0].trim() : '';
 }
 
 // ─── AUTOCOMPLETE PACIENTES ───────────────────────────
