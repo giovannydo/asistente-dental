@@ -824,14 +824,52 @@
       <label>Fecha y hora</label>
       <select id="nueva-cita-slot"></select>
     </div>
-    <div class="form-group">
-      <label>Nombre del paciente</label>
-      <input type="text" id="nueva-cita-nombre" placeholder="Ej: María González" />
+
+    <!-- AUTOCOMPLETE PACIENTE -->
+    <div class="form-group" style="position:relative">
+      <label>Paciente</label>
+      <input type="text" id="paciente-search" placeholder="Escribe el nombre..." 
+        oninput="buscarPaciente(this.value)" autocomplete="off" />
+      <div id="paciente-dropdown" style="
+        display:none;
+        position:absolute;
+        top:100%;
+        left:0;right:0;
+        background:white;
+        border:1.5px solid var(--border);
+        border-radius:8px;
+        max-height:200px;
+        overflow-y:auto;
+        z-index:300;
+        box-shadow:0 4px 16px rgba(0,0,0,0.1);
+        margin-top:4px;
+      "></div>
     </div>
-    <div class="form-group">
-      <label>Teléfono (opcional)</label>
-      <input type="text" id="nueva-cita-telefono" placeholder="584121234567" />
+
+    <!-- INFO PACIENTE SELECCIONADO -->
+    <div id="paciente-seleccionado" style="display:none;background:var(--accent-light);border-radius:8px;padding:12px;margin-bottom:16px;border:1.5px solid var(--accent)">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-weight:600;font-size:14px" id="paciente-sel-nombre"></div>
+          <div style="font-size:12px;color:var(--text-muted)" id="paciente-sel-tel"></div>
+        </div>
+        <button onclick="limpiarPaciente()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted)">✕</button>
+      </div>
     </div>
+
+    <!-- FORMULARIO NUEVO PACIENTE (oculto por defecto) -->
+    <div id="nuevo-paciente-form" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-bottom:16px;border:1.5px dashed var(--border)">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--accent)">➕ Registrar nuevo paciente</div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Nombre completo *</label>
+        <input type="text" id="nuevo-nombre" placeholder="Ej: María González" />
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Teléfono WhatsApp (opcional)</label>
+        <input type="text" id="nuevo-telefono" placeholder="584121234567" />
+      </div>
+    </div>
+
     <div class="form-group">
       <label>Motivo de consulta (opcional)</label>
       <input type="text" id="nueva-cita-tipo" placeholder="Ej: Limpieza, Brackets, Control" />
@@ -1318,6 +1356,16 @@ function agendarDesdeSlot(slotId) {
   });
   const select = document.getElementById('nueva-cita-slot');
   select.innerHTML = `<option value="${slotId}">${fecha} – ${hora}</option>`;
+
+  // Resetear formulario paciente
+  limpiarPaciente();
+  document.getElementById('nueva-cita-tipo').value = '';
+  document.getElementById('nuevo-nombre').value = '';
+  document.getElementById('nuevo-telefono').value = '';
+
+  // Cargar pacientes
+  cargarPacientes();
+
   document.getElementById('modal-nueva-cita').classList.add('open');
 }
 
@@ -1334,12 +1382,120 @@ async function cancelarCita(slotId) {
   }
 }
 
+// ─── AUTOCOMPLETE PACIENTES ───────────────────────────
+let pacientesData = [];
+let pacienteSeleccionadoId = null;
+let searchTimeout = null;
+
+async function cargarPacientes() {
+  if (pacientesData.length > 0) return;
+  try {
+    pacientesData = await airtableGet(TABLES.pacientes,
+      'fields[]=nombre_completo&fields[]=telefono_wa&fields[]=estado_paciente&maxRecords=500&sort[0][field]=nombre_completo&sort[0][direction]=asc');
+  } catch(e) {
+    console.warn('No se pudieron cargar pacientes:', e);
+  }
+}
+
+function buscarPaciente(query) {
+  clearTimeout(searchTimeout);
+  const dropdown = document.getElementById('paciente-dropdown');
+  const seleccionado = document.getElementById('paciente-seleccionado');
+  const nuevoForm = document.getElementById('nuevo-paciente-form');
+
+  if (!query || query.length < 1) {
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  searchTimeout = setTimeout(() => {
+    const q = query.toLowerCase().trim();
+    const resultados = pacientesData.filter(p =>
+      (p.fields.nombre_completo || '').toLowerCase().includes(q)
+    ).slice(0, 8);
+
+    let html = '';
+
+    if (resultados.length > 0) {
+      resultados.forEach(p => {
+        const nombre = p.fields.nombre_completo || '';
+        const tel = p.fields.telefono_wa || '';
+        html += `<div onclick="seleccionarPaciente('${p.id}','${nombre}','${tel}')" style="
+          padding:10px 14px;
+          cursor:pointer;
+          border-bottom:1px solid var(--border);
+          transition:background 0.1s;
+        " onmouseover="this.style.background='var(--accent-light)'" 
+           onmouseout="this.style.background='white'">
+          <div style="font-weight:500;font-size:14px">${nombre}</div>
+          ${tel ? `<div style="font-size:12px;color:var(--text-muted)">${tel}</div>` : ''}
+        </div>`;
+      });
+    }
+
+    // Siempre mostrar opción de registrar nuevo
+    html += `<div onclick="mostrarNuevoPaciente('${query}')" style="
+      padding:10px 14px;
+      cursor:pointer;
+      color:var(--accent);
+      font-weight:500;
+      font-size:13px;
+      background:var(--accent-light);
+      display:flex;
+      align-items:center;
+      gap:6px;
+    " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+      ➕ Registrar "${query}" como nuevo paciente
+    </div>`;
+
+    dropdown.innerHTML = html;
+    dropdown.style.display = 'block';
+  }, 200);
+}
+
+function seleccionarPaciente(id, nombre, tel) {
+  pacienteSeleccionadoId = id;
+  document.getElementById('paciente-search').value = nombre;
+  document.getElementById('paciente-dropdown').style.display = 'none';
+  document.getElementById('paciente-sel-nombre').textContent = nombre;
+  document.getElementById('paciente-sel-tel').textContent = tel ? `📱 ${tel}` : 'Sin teléfono registrado';
+  document.getElementById('paciente-seleccionado').style.display = 'block';
+  document.getElementById('nuevo-paciente-form').style.display = 'none';
+}
+
+function mostrarNuevoPaciente(nombre) {
+  pacienteSeleccionadoId = null;
+  document.getElementById('paciente-dropdown').style.display = 'none';
+  document.getElementById('paciente-seleccionado').style.display = 'none';
+  document.getElementById('nuevo-paciente-form').style.display = 'block';
+  document.getElementById('nuevo-nombre').value = nombre;
+  document.getElementById('nuevo-telefono').value = '';
+}
+
+function limpiarPaciente() {
+  pacienteSeleccionadoId = null;
+  document.getElementById('paciente-search').value = '';
+  document.getElementById('paciente-seleccionado').style.display = 'none';
+  document.getElementById('nuevo-paciente-form').style.display = 'none';
+  document.getElementById('paciente-dropdown').style.display = 'none';
+  document.getElementById('paciente-search').focus();
+}
+
+// Cerrar dropdown al click fuera
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#paciente-search') && !e.target.closest('#paciente-dropdown')) {
+    const dd = document.getElementById('paciente-dropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
 // ─── NUEVA CITA ───────────────────────────────────────
 function openNewCitaModal() {
+  // Cargar slots libres
   const libres = slotsData
     .filter(s => getSlotStatus(s) === 'libre')
     .sort((a, b) => new Date(a.fields.fecha_hora_inicio) - new Date(b.fields.fecha_hora_inicio))
-    .slice(0, 50);
+    .slice(0, 100);
 
   const select = document.getElementById('nueva-cita-slot');
   select.innerHTML = libres.map(s => {
@@ -1350,50 +1506,65 @@ function openNewCitaModal() {
     return `<option value="${s.id}">${fecha} · ${hora}</option>`;
   }).join('');
 
+  // Resetear formulario
+  limpiarPaciente();
+  document.getElementById('nueva-cita-tipo').value = '';
+
+  // Cargar pacientes en background
+  cargarPacientes();
+
   document.getElementById('modal-nueva-cita').classList.add('open');
 }
 
 async function crearCitaManual() {
   const slotId = document.getElementById('nueva-cita-slot').value;
-  const nombre = document.getElementById('nueva-cita-nombre').value.trim();
-  const telefono = document.getElementById('nueva-cita-telefono').value.trim();
   const motivo = document.getElementById('nueva-cita-tipo').value.trim();
 
-  if (!nombre) { showToast('Ingresa el nombre del paciente', 'error'); return; }
   if (!slotId) { showToast('Selecciona un horario', 'error'); return; }
 
   const slot = slotsData.find(s => s.id === slotId);
   if (!slot) { showToast('Slot no encontrado', 'error'); return; }
 
-  try {
-    // Buscar o crear paciente
-    let pacienteId = null;
-    const tel = telefono.replace(/\D/g, '');
+  let pacienteId = pacienteSeleccionadoId;
 
-    try {
-      // Primero buscar por nombre
-      const busqueda = await airtableGet(TABLES.pacientes,
-        `filterByFormula=SEARCH("${nombre}",{nombre_completo})&maxRecords=1`);
+  // Si no hay paciente seleccionado verificar si está registrando uno nuevo
+  if (!pacienteId) {
+    const nuevoNombre = document.getElementById('nuevo-nombre').value.trim();
+    const nuevoTel = document.getElementById('nuevo-telefono').value.trim().replace(/\D/g, '');
 
-      if (busqueda.length > 0) {
-        pacienteId = busqueda[0].id;
-      } else {
-        // Crear paciente nuevo con campos mínimos requeridos
+    if (!nuevoNombre && !document.getElementById('paciente-search').value.trim()) {
+      showToast('Selecciona o registra un paciente', 'error');
+      return;
+    }
+
+    if (nuevoNombre) {
+      // Crear paciente nuevo
+      try {
         const camposPaciente = {
-          nombre_completo: nombre,
+          nombre_completo: nuevoNombre,
           canal_origen: 'Manual',
           estado_paciente: 'Nuevo'
         };
-        if (tel) camposPaciente.telefono_wa = tel;
+        if (nuevoTel) camposPaciente.telefono_wa = nuevoTel;
 
         const nuevoPaciente = await airtablePost(TABLES.pacientes, camposPaciente);
         pacienteId = nuevoPaciente.id;
-      }
-    } catch(pe) {
-      console.warn('No se pudo crear/buscar paciente:', pe);
-    }
 
-    // Crear cita con campos exactos de Airtable
+        // Agregar a la lista local para futuras búsquedas
+        pacientesData.push({
+          id: nuevoPaciente.id,
+          fields: { nombre_completo: nuevoNombre, telefono_wa: nuevoTel }
+        });
+      } catch(pe) {
+        console.warn('Error creando paciente:', pe);
+        showToast('Error al registrar paciente', 'error');
+        return;
+      }
+    }
+  }
+
+  try {
+    // Crear cita
     const citaFields = {
       fecha_hora: slot.fields.fecha_hora_inicio,
       estado_cita: 'Confirmada',
@@ -1401,10 +1572,7 @@ async function crearCitaManual() {
       duracion_minutos: 45
     };
 
-    // Vincular paciente
     if (pacienteId) citaFields.paciente = [pacienteId];
-
-    // Motivo de consulta
     if (motivo) citaFields.motivo_consulta = motivo;
 
     await airtablePost(TABLES.citas, citaFields);
@@ -1416,9 +1584,10 @@ async function crearCitaManual() {
     });
 
     // Limpiar formulario
-    document.getElementById('nueva-cita-nombre').value = '';
-    document.getElementById('nueva-cita-telefono').value = '';
+    limpiarPaciente();
     document.getElementById('nueva-cita-tipo').value = '';
+    document.getElementById('nuevo-nombre').value = '';
+    document.getElementById('nuevo-telefono').value = '';
 
     closeModal('modal-nueva-cita');
     showToast('✅ Cita agendada correctamente', 'success');
