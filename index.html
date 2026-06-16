@@ -1360,47 +1360,71 @@ async function crearCitaManual() {
   const tipo = document.getElementById('nueva-cita-tipo').value.trim();
 
   if (!nombre) { showToast('Ingresa el nombre del paciente', 'error'); return; }
+  if (!slotId) { showToast('Selecciona un horario', 'error'); return; }
 
   const slot = slotsData.find(s => s.id === slotId);
-  if (!slot) return;
+  if (!slot) { showToast('Slot no encontrado', 'error'); return; }
 
   try {
-    // Crear o buscar paciente
+    // Intentar crear o buscar paciente solo si hay teléfono
     let pacienteId = null;
     if (telefono) {
-      const pacientes = await airtableGet(TABLES.pacientes, `filterByFormula={telefono_wa}="${telefono}"`);
-      if (pacientes.length > 0) {
-        pacienteId = pacientes[0].id;
-      } else {
-        const nuevoPaciente = await airtablePost(TABLES.pacientes, {
-          nombre_completo: nombre,
-          telefono_wa: telefono,
-          canal_origen: 'Manual',
-          estado_paciente: 'Activo'
-        });
-        pacienteId = nuevoPaciente.id;
+      try {
+        const tel = telefono.replace(/\D/g, '');
+        const pacientes = await airtableGet(TABLES.pacientes,
+          `filterByFormula=FIND("${tel}",{telefono_wa})`);
+        if (pacientes.length > 0) {
+          pacienteId = pacientes[0].id;
+        } else {
+          const nuevoPaciente = await airtablePost(TABLES.pacientes, {
+            nombre_completo: nombre,
+            telefono_wa: tel,
+            canal_origen: 'Manual',
+            estado_paciente: 'Activo',
+            paciente_id: 'manual_' + Date.now()
+          });
+          pacienteId = nuevoPaciente.id;
+        }
+      } catch(pe) {
+        // Si falla la búsqueda de paciente, continuar sin vincular
+        console.warn('No se pudo crear/buscar paciente:', pe);
       }
     }
 
-    // Crear cita
+    // Crear cita — solo campos que existen en Airtable
+    const fechaISO = slot.fields.fecha_hora_inicio;
     const citaFields = {
-      fecha_hora: slot.fields.fecha_hora_inicio,
+      fecha_hora: fechaISO,
       estado_cita: 'Confirmada',
-      slot_disponibilidad: [slotId],
-      tipo_cita: tipo || 'Consulta'
+      slot_disponibilidad: [slotId]
     };
+
+    // Agregar tipo si existe
+    if (tipo) citaFields.tipo_cita = tipo;
+
+    // Vincular paciente si se encontró/creó
     if (pacienteId) citaFields.paciente = [pacienteId];
 
     await airtablePost(TABLES.citas, citaFields);
 
-    // Bloquear slot
-    await airtablePatch(TABLES.slots, slotId, { estado_slot: 'Ocupado', disponible: false });
+    // Marcar slot como ocupado
+    await airtablePatch(TABLES.slots, slotId, {
+      estado_slot: 'Ocupado',
+      disponible: false
+    });
+
+    // Limpiar formulario
+    document.getElementById('nueva-cita-nombre').value = '';
+    document.getElementById('nueva-cita-telefono').value = '';
+    document.getElementById('nueva-cita-tipo').value = '';
 
     closeModal('modal-nueva-cita');
     showToast('✅ Cita agendada correctamente', 'success');
     await refreshData();
+
   } catch(e) {
-    showToast('Error al guardar la cita', 'error');
+    console.error('Error al guardar cita:', e);
+    showToast('Error al guardar la cita: ' + (e.message || 'Verifica los datos'), 'error');
   }
 }
 
