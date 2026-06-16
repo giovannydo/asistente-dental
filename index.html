@@ -833,8 +833,8 @@
       <input type="text" id="nueva-cita-telefono" placeholder="584121234567" />
     </div>
     <div class="form-group">
-      <label>Tipo de consulta</label>
-      <input type="text" id="nueva-cita-tipo" placeholder="Ej: Limpieza, Consulta, Brackets" />
+      <label>Motivo de consulta (opcional)</label>
+      <input type="text" id="nueva-cita-tipo" placeholder="Ej: Limpieza, Brackets, Control" />
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('modal-nueva-cita')">Cancelar</button>
@@ -1357,7 +1357,7 @@ async function crearCitaManual() {
   const slotId = document.getElementById('nueva-cita-slot').value;
   const nombre = document.getElementById('nueva-cita-nombre').value.trim();
   const telefono = document.getElementById('nueva-cita-telefono').value.trim();
-  const tipo = document.getElementById('nueva-cita-tipo').value.trim();
+  const motivo = document.getElementById('nueva-cita-tipo').value.trim();
 
   if (!nombre) { showToast('Ingresa el nombre del paciente', 'error'); return; }
   if (!slotId) { showToast('Selecciona un horario', 'error'); return; }
@@ -1366,44 +1366,46 @@ async function crearCitaManual() {
   if (!slot) { showToast('Slot no encontrado', 'error'); return; }
 
   try {
-    // Intentar crear o buscar paciente solo si hay teléfono
+    // Buscar o crear paciente
     let pacienteId = null;
-    if (telefono) {
-      try {
-        const tel = telefono.replace(/\D/g, '');
-        const pacientes = await airtableGet(TABLES.pacientes,
-          `filterByFormula=FIND("${tel}",{telefono_wa})`);
-        if (pacientes.length > 0) {
-          pacienteId = pacientes[0].id;
-        } else {
-          const nuevoPaciente = await airtablePost(TABLES.pacientes, {
-            nombre_completo: nombre,
-            telefono_wa: tel,
-            canal_origen: 'Manual',
-            estado_paciente: 'Activo',
-            paciente_id: 'manual_' + Date.now()
-          });
-          pacienteId = nuevoPaciente.id;
-        }
-      } catch(pe) {
-        // Si falla la búsqueda de paciente, continuar sin vincular
-        console.warn('No se pudo crear/buscar paciente:', pe);
+    const tel = telefono.replace(/\D/g, '');
+
+    try {
+      // Primero buscar por nombre
+      const busqueda = await airtableGet(TABLES.pacientes,
+        `filterByFormula=SEARCH("${nombre}",{nombre_completo})&maxRecords=1`);
+
+      if (busqueda.length > 0) {
+        pacienteId = busqueda[0].id;
+      } else {
+        // Crear paciente nuevo con campos mínimos requeridos
+        const camposPaciente = {
+          nombre_completo: nombre,
+          canal_origen: 'Manual',
+          estado_paciente: 'Nuevo'
+        };
+        if (tel) camposPaciente.telefono_wa = tel;
+
+        const nuevoPaciente = await airtablePost(TABLES.pacientes, camposPaciente);
+        pacienteId = nuevoPaciente.id;
       }
+    } catch(pe) {
+      console.warn('No se pudo crear/buscar paciente:', pe);
     }
 
-    // Crear cita — solo campos que existen en Airtable
-    const fechaISO = slot.fields.fecha_hora_inicio;
+    // Crear cita con campos exactos de Airtable
     const citaFields = {
-      fecha_hora: fechaISO,
+      fecha_hora: slot.fields.fecha_hora_inicio,
       estado_cita: 'Confirmada',
-      slot_disponibilidad: [slotId]
+      slot_disponibilidad: [slotId],
+      duracion_minutos: 45
     };
 
-    // Agregar tipo si existe
-    if (tipo) citaFields.tipo_cita = tipo;
-
-    // Vincular paciente si se encontró/creó
+    // Vincular paciente
     if (pacienteId) citaFields.paciente = [pacienteId];
+
+    // Motivo de consulta
+    if (motivo) citaFields.motivo_consulta = motivo;
 
     await airtablePost(TABLES.citas, citaFields);
 
@@ -1424,7 +1426,7 @@ async function crearCitaManual() {
 
   } catch(e) {
     console.error('Error al guardar cita:', e);
-    showToast('Error al guardar la cita: ' + (e.message || 'Verifica los datos'), 'error');
+    showToast('Error: ' + (e.message || 'Verifica los datos'), 'error');
   }
 }
 
