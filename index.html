@@ -1033,8 +1033,9 @@ function getSlotsForDate(dateStr) {
 
 function isBloqueado(dateStr) {
   return bloqueosData.some(b => {
-    const ini = toLocalDateStr(new Date(b.fields.fecha_inicio));
-    const fin = toLocalDateStr(new Date(b.fields.fecha_fin));
+    // Comparar solo la parte de fecha ignorando la hora
+    const ini = (b.fields.fecha_inicio || '').substring(0, 10);
+    const fin = (b.fields.fecha_fin || '').substring(0, 10);
     return dateStr >= ini && dateStr <= fin;
   });
 }
@@ -1242,7 +1243,9 @@ function renderSemana() {
       const duration = 45;
       const heightPx = duration;
       const status = getSlotStatus(slot);
-      const label = status === 'ocupado' ? (slot.fields.titulo_cita || 'Cita') : (status === 'libre' ? '✓ Libre' : '🔒');
+      const titulo = slot.fields.titulo_cita || '';
+      const nombrePaciente = titulo ? titulo.split('·')[0].trim() : '';
+      const label = status === 'ocupado' ? (nombrePaciente || 'Cita') : (status === 'libre' ? '✓ Libre' : '🔒');
 
       html += `<div class="week-slot-block ${status}" 
         style="top:${topPx}px;height:${heightPx}px"
@@ -1287,12 +1290,14 @@ function renderDia() {
       const hora = formatHour(slot.fields.fecha_hora_inicio);
       const horaFin = formatHour(slot.fields.fecha_hora_fin);
       const titulo = slot.fields.titulo_cita || '';
+      // Extraer solo el nombre del paciente del titulo (formato: "Nombre · fecha")
+      const nombrePaciente = titulo ? titulo.split('·')[0].trim() : '';
 
       html += `<div class="day-slot-card ${status}" onclick="clickSlot('${slot.id}')">
         <div class="slot-time">${hora}</div>
         <div class="slot-info">
           <div style="font-size:12px;color:var(--text-muted)">${hora} – ${horaFin}</div>
-          ${titulo ? `<div class="slot-patient">${titulo}</div>` : ''}
+          ${nombrePaciente ? `<div class="slot-patient" style="font-weight:500;color:var(--text)">${nombrePaciente}</div>` : ''}
         </div>
         <span class="slot-status ${status}">
           ${status === 'libre' ? 'Disponible' : status === 'ocupado' ? 'Ocupado' : 'Bloqueado'}
@@ -1614,9 +1619,14 @@ async function guardarBloqueo() {
   if (!fecha) { showToast('Selecciona una fecha', 'error'); return; }
 
   try {
+    // Guardar con hora explícita en Venezuela para evitar problemas de timezone
+    // Usamos mediodía UTC-4 = 16:00 UTC para que caiga bien en cualquier zona
+    const fechaInicio = fecha + 'T12:00:00.000Z';
+    const fechaFin = fecha + 'T12:00:00.000Z';
+
     await airtablePost(TABLES.bloqueos, {
-      fecha_inicio: fecha,
-      fecha_fin: fecha,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
       motivo: motivo || 'Sin especificar',
       tipo,
       activo: true
