@@ -535,10 +535,11 @@ window.addEventListener('load', () => {
   .day-slot-card.bloqueado { border-color: var(--bloqueado); background: var(--bloqueado-bg); }
 
   .slot-time {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--text);
-    min-width: 80px;
+    min-width: 70px;
+    white-space: nowrap;
   }
 
   .slot-info { flex: 1; }
@@ -1349,10 +1350,10 @@ function renderDia() {
       html += `<div class="day-slot-card ${status}" onclick="clickSlot('${slot.id}')">
         <div class="slot-time">${hora}</div>
         <div class="slot-info">
-          <div style="font-size:12px;color:var(--text-muted)">${hora} – ${horaFin}</div>
-          ${nombrePaciente ? `<div class="slot-patient" style="font-weight:500;color:var(--text)">${nombrePaciente}</div>` : ''}
+          <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${hora} – ${horaFin}</div>
+          ${nombrePaciente ? `<div class="slot-patient" style="font-weight:500;color:var(--text);font-size:12px">${nombrePaciente}</div>` : ''}
         </div>
-        <span class="slot-status ${status}">
+        <span class="slot-status ${status}" style="font-size:11px;white-space:nowrap">
           ${status === 'libre' ? 'Disponible' : status === 'ocupado' ? 'Ocupado' : 'Bloqueado'}
         </span>
       </div>`;
@@ -1441,10 +1442,11 @@ async function cancelarCita(slotId) {
 }
 
 function getNombrePacienteSlot(slotId) {
-  // Buscar en citasData la cita que tiene este slot
+  // Solo mostrar nombre si la cita está activa (no cancelada)
   const cita = citasData.find(c => {
     const slots = c.fields.slot_disponibilidad || [];
-    return slots.includes(slotId);
+    const estado = c.fields.estado_cita || '';
+    return slots.includes(slotId) && estado !== 'Cancelada';
   });
   if (!cita) return '';
   const titulo = cita.fields.titulo_cita || '';
