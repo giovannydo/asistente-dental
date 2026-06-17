@@ -1599,11 +1599,14 @@ function openNewCitaModal() {
   document.getElementById('modal-nueva-cita').classList.add('open');
 }
 
+let creandoCita = false;
+
 async function crearCitaManual() {
+  if (creandoCita) return; // Evitar doble ejecución
+  creandoCita = true;
+
   const btnGuardar = document.querySelector('#modal-nueva-cita .btn-confirm');
-  if (btnGuardar.disabled) return; // Evitar doble click
-  btnGuardar.disabled = true;
-  btnGuardar.textContent = 'Guardando...';
+  if (btnGuardar) { btnGuardar.disabled = true; btnGuardar.textContent = 'Guardando...'; }
 
   const slotId = document.getElementById('nueva-cita-slot').value;
   const motivo = document.getElementById('nueva-cita-tipo').value.trim();
@@ -1685,8 +1688,8 @@ async function crearCitaManual() {
     console.error('Error al guardar cita:', e);
     showToast('Error: ' + (e.message || 'Verifica los datos'), 'error');
   } finally {
-    btnGuardar.disabled = false;
-    btnGuardar.textContent = 'Guardar cita';
+    creandoCita = false;
+    if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.textContent = 'Guardar cita'; }
   }
 }
 
