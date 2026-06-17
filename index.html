@@ -1600,6 +1600,11 @@ function openNewCitaModal() {
 }
 
 async function crearCitaManual() {
+  const btnGuardar = document.querySelector('#modal-nueva-cita .btn-confirm');
+  if (btnGuardar.disabled) return; // Evitar doble click
+  btnGuardar.disabled = true;
+  btnGuardar.textContent = 'Guardando...';
+
   const slotId = document.getElementById('nueva-cita-slot').value;
   const motivo = document.getElementById('nueva-cita-tipo').value.trim();
 
@@ -1679,6 +1684,9 @@ async function crearCitaManual() {
   } catch(e) {
     console.error('Error al guardar cita:', e);
     showToast('Error: ' + (e.message || 'Verifica los datos'), 'error');
+  } finally {
+    btnGuardar.disabled = false;
+    btnGuardar.textContent = 'Guardar cita';
   }
 }
 
