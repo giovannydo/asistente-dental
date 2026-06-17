@@ -1,0 +1,10 @@
+{
+  "name": "Agenda Dental",
+  "short_name": "Agenda",
+  "description": "Panel de agenda para el consultorio",
+  "start_url": "/asistente-dental/",
+  "display": "standalone",
+  "background_color": "#2563EB",
+  "theme_color": "#2563EB",
+  "orientation": "portrait"
+}
