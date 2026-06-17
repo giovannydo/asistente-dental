@@ -1433,7 +1433,19 @@ async function cancelarCita(slotId) {
   const slot = slotsData.find(s => s.id === slotId);
   if (!slot) return;
   try {
+    // Liberar slot
     await airtablePatch(TABLES.slots, slotId, { estado_slot: 'Libre', disponible: true });
+
+    // Buscar y cancelar la cita vinculada
+    const cita = citasData.find(c => {
+      const slots = c.fields.slot_disponibilidad || [];
+      return slots.includes(slotId) && c.fields.estado_cita !== 'Cancelada';
+    });
+
+    if (cita) {
+      await airtablePatch(TABLES.citas, cita.id, { estado_cita: 'Cancelada' });
+    }
+
     showToast('Cita cancelada, slot liberado', 'success');
     await refreshData();
   } catch(e) {
