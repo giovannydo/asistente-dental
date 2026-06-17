@@ -4,6 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agenda · Dr. Rodríguez</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Agenda Dental">
+<meta name="theme-color" content="#2563EB">
+<link rel="manifest" href="manifest.json">
+<script>
+// Generar ícono dinámicamente desde emoji
+function generarIcono(emoji, size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#2563EB';
+  ctx.beginPath();
+  ctx.roundRect(0, 0, size, size, size * 0.2);
+  ctx.fill();
+  ctx.font = `${size * 0.6}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, size/2, size/2);
+  return canvas.toDataURL('image/png');
+}
+window.addEventListener('load', () => {
+  const icon192 = generarIcono('🦷', 192);
+  const icon512 = generarIcono('🦷', 512);
+  // Apple touch icon
+  const appleLink = document.createElement('link');
+  appleLink.rel = 'apple-touch-icon';
+  appleLink.href = icon192;
+  document.head.appendChild(appleLink);
+  // Standard icon
+  const link = document.createElement('link');
+  link.rel = 'icon';
+  link.href = icon192;
+  document.head.appendChild(link);
+});
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
