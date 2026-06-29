@@ -10,7 +10,6 @@
 <meta name="theme-color" content="#2563EB">
 <link rel="manifest" href="manifest.json">
 <script>
-// Generar ícono dinámicamente desde emoji
 function generarIcono(emoji, size) {
   const canvas = document.createElement('canvas');
   canvas.width = size; canvas.height = size;
@@ -27,13 +26,10 @@ function generarIcono(emoji, size) {
 }
 window.addEventListener('load', () => {
   const icon192 = generarIcono('🦷', 192);
-  const icon512 = generarIcono('🦷', 512);
-  // Apple touch icon
   const appleLink = document.createElement('link');
   appleLink.rel = 'apple-touch-icon';
   appleLink.href = icon192;
   document.head.appendChild(appleLink);
-  // Standard icon
   const link = document.createElement('link');
   link.rel = 'icon';
   link.href = icon192;
@@ -58,6 +54,7 @@ window.addEventListener('load', () => {
     --accent: #2563EB;
     --accent-light: #EFF6FF;
     --today: #FEF3C7;
+    --pasado: #F9FAFB;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -69,7 +66,6 @@ window.addEventListener('load', () => {
     min-height: 100vh;
   }
 
-  /* SETUP */
   #setup-screen {
     display: flex;
     align-items: center;
@@ -88,23 +84,9 @@ window.addEventListener('load', () => {
     text-align: center;
   }
 
-  .setup-logo {
-    font-size: 48px;
-    margin-bottom: 16px;
-  }
-
-  .setup-card h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-
-  .setup-card p {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin-bottom: 28px;
-    line-height: 1.6;
-  }
+  .setup-logo { font-size: 48px; margin-bottom: 16px; }
+  .setup-card h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .setup-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
 
   .setup-card input {
     width: 100%;
@@ -118,9 +100,7 @@ window.addEventListener('load', () => {
     transition: border-color 0.2s;
   }
 
-  .setup-card input:focus {
-    border-color: var(--accent);
-  }
+  .setup-card input:focus { border-color: var(--accent); }
 
   .btn-primary {
     width: 100%;
@@ -138,10 +118,8 @@ window.addEventListener('load', () => {
 
   .btn-primary:hover { background: #1D4ED8; }
 
-  /* APP */
   #app { display: none; }
 
-  /* HEADER */
   .header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -155,33 +133,13 @@ window.addEventListener('load', () => {
     z-index: 100;
   }
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-logo { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .header-subtitle { font-size: 13px; color: var(--text-muted); display: none; }
 
-  .header-logo {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--accent);
-  }
+  @media (min-width: 640px) { .header-subtitle { display: block; } }
 
-  .header-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    .header-subtitle { display: block; }
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .header-actions { display: flex; align-items: center; gap: 8px; }
 
   .view-toggle {
     display: flex;
@@ -225,7 +183,6 @@ window.addEventListener('load', () => {
     gap: 6px;
   }
 
-  /* NAV SEMANA */
   .nav-bar {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -235,16 +192,9 @@ window.addEventListener('load', () => {
     justify-content: space-between;
   }
 
-  .nav-period {
-    font-size: 16px;
-    font-weight: 600;
-  }
+  .nav-period { font-size: 16px; font-weight: 600; }
 
-  .nav-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .nav-controls { display: flex; align-items: center; gap: 8px; }
 
   .nav-btn {
     width: 32px;
@@ -273,7 +223,6 @@ window.addEventListener('load', () => {
     font-family: 'Inter', sans-serif;
   }
 
-  /* LEYENDA */
   .legend {
     display: flex;
     gap: 16px;
@@ -284,21 +233,9 @@ window.addEventListener('load', () => {
     flex-wrap: wrap;
   }
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  /* VISTA MES */
   #view-mes { padding: 20px 24px; }
 
   .month-grid {
@@ -332,14 +269,13 @@ window.addEventListener('load', () => {
   }
 
   .month-cell:hover { background: var(--accent-light); }
-
   .month-cell.today { background: var(--today); }
-
   .month-cell.other-month { opacity: 0.4; }
-
   .month-cell.bloqueado { background: #F3F4F6; }
-
   .month-cell.feriado { background: #FEF2F2; }
+  /* FIX: días pasados sin slots */
+  .month-cell.pasado { background: var(--pasado); cursor: default; }
+  .month-cell.pasado:hover { background: var(--pasado); }
 
   .day-number {
     font-size: 14px;
@@ -351,9 +287,8 @@ window.addEventListener('load', () => {
     justify-content: space-between;
   }
 
-  .day-number.today-num {
-    color: var(--accent);
-  }
+  .day-number.today-num { color: var(--accent); }
+  .day-number.pasado-num { color: var(--text-muted); }
 
   .day-badge {
     font-size: 10px;
@@ -364,25 +299,11 @@ window.addEventListener('load', () => {
     background: var(--accent);
   }
 
-  .day-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
+  .day-stats { display: flex; flex-direction: column; gap: 3px; }
 
-  .stat-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-  }
+  .stat-row { display: flex; align-items: center; gap: 5px; font-size: 11px; }
 
-  .stat-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .stat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
   .stat-bar {
     height: 4px;
@@ -393,14 +314,8 @@ window.addEventListener('load', () => {
     margin-top: 4px;
   }
 
-  .stat-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: var(--libre);
-    transition: width 0.3s;
-  }
+  .stat-bar-fill { height: 100%; border-radius: 99px; background: var(--libre); transition: width 0.3s; }
 
-  /* VISTA SEMANA */
   #view-semana { padding: 0; }
 
   .week-grid {
@@ -420,31 +335,15 @@ window.addEventListener('load', () => {
     z-index: 10;
   }
 
-  .week-day-header.today-col {
-    background: var(--accent-light);
-  }
+  .week-day-header.today-col { background: var(--accent-light); }
+  .week-day-header.pasado-col { background: var(--pasado); opacity: 0.7; }
 
-  .week-day-name {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .week-day-num {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.2;
-  }
-
+  .week-day-name { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .week-day-num { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; }
   .week-day-num.today-num { color: var(--accent); }
+  .week-day-num.pasado-num { color: var(--text-muted); }
 
-  .week-time-col {
-    border-right: 1px solid var(--border);
-    background: var(--surface);
-  }
+  .week-time-col { border-right: 1px solid var(--border); background: var(--surface); }
 
   .week-time-label {
     height: 60px;
@@ -457,16 +356,8 @@ window.addEventListener('load', () => {
     border-bottom: 1px solid var(--border);
   }
 
-  .week-slot-col {
-    border-right: 1px solid var(--border);
-    position: relative;
-  }
-
-  .week-hour-row {
-    height: 60px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
+  .week-slot-col { border-right: 1px solid var(--border); position: relative; }
+  .week-hour-row { height: 60px; border-bottom: 1px solid var(--border); background: var(--surface); }
 
   .week-slot-block {
     position: absolute;
@@ -482,39 +373,14 @@ window.addEventListener('load', () => {
     z-index: 5;
   }
 
-  .week-slot-block:hover {
-    opacity: 0.85;
-    transform: scale(1.01);
-  }
+  .week-slot-block:hover { opacity: 0.85; transform: scale(1.01); }
+  .week-slot-block.libre { background: var(--libre-bg); border-left: 3px solid var(--libre); color: #065F46; }
+  .week-slot-block.ocupado { background: var(--ocupado-bg); border-left: 3px solid var(--ocupado); color: #991B1B; }
+  .week-slot-block.bloqueado { background: var(--bloqueado-bg); border-left: 3px solid var(--bloqueado); color: #4B5563; }
 
-  .week-slot-block.libre {
-    background: var(--libre-bg);
-    border-left: 3px solid var(--libre);
-    color: #065F46;
-  }
-
-  .week-slot-block.ocupado {
-    background: var(--ocupado-bg);
-    border-left: 3px solid var(--ocupado);
-    color: #991B1B;
-  }
-
-  .week-slot-block.bloqueado {
-    background: var(--bloqueado-bg);
-    border-left: 3px solid var(--bloqueado);
-    color: #4B5563;
-  }
-
-  /* VISTA DÍA */
   #view-dia { padding: 20px 24px; }
 
-  .day-slots-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+  .day-slots-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; margin: 0 auto; }
 
   .day-slot-card {
     background: var(--surface);
@@ -529,19 +395,11 @@ window.addEventListener('load', () => {
   }
 
   .day-slot-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-
   .day-slot-card.libre { border-color: var(--libre); }
   .day-slot-card.ocupado { border-color: var(--ocupado); background: var(--ocupado-bg); }
   .day-slot-card.bloqueado { border-color: var(--bloqueado); background: var(--bloqueado-bg); }
 
-  .slot-time {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text);
-    min-width: 70px;
-    white-space: nowrap;
-  }
-
+  .slot-time { font-size: 14px; font-weight: 700; color: var(--text); min-width: 70px; white-space: nowrap; }
   .slot-info { flex: 1; }
 
   .slot-status {
@@ -555,13 +413,8 @@ window.addEventListener('load', () => {
   .slot-status.ocupado { background: var(--ocupado-bg); color: #991B1B; }
   .slot-status.bloqueado { background: var(--bloqueado-bg); color: #4B5563; }
 
-  .slot-patient {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 2px;
-  }
+  .slot-patient { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-  /* MODAL */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -584,15 +437,9 @@ window.addEventListener('load', () => {
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
   }
 
-  .modal h2 {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 20px;
-  }
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
 
-  .form-group {
-    margin-bottom: 16px;
-  }
+  .form-group { margin-bottom: 16px; }
 
   .form-group label {
     display: block;
@@ -619,15 +466,9 @@ window.addEventListener('load', () => {
 
   .form-group input:focus,
   .form-group select:focus,
-  .form-group textarea:focus {
-    border-color: var(--accent);
-  }
+  .form-group textarea:focus { border-color: var(--accent); }
 
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-  }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
   .btn-cancel {
     flex: 1;
@@ -667,7 +508,6 @@ window.addEventListener('load', () => {
     font-family: 'Inter', sans-serif;
   }
 
-  /* LOADING */
   .loading {
     display: flex;
     align-items: center;
@@ -689,7 +529,6 @@ window.addEventListener('load', () => {
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* TOAST */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -710,7 +549,6 @@ window.addEventListener('load', () => {
   .toast.success { background: var(--libre); }
   .toast.error { background: var(--ocupado); }
 
-  /* STATS BAR */
   .stats-bar {
     display: flex;
     gap: 16px;
@@ -732,18 +570,8 @@ window.addEventListener('load', () => {
   }
 
   .stat-icon { font-size: 18px; }
-
-  .stat-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-  }
+  .stat-value { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--text-muted); }
 
   @media (max-width: 640px) {
     .header { padding: 0 12px; }
@@ -785,8 +613,6 @@ window.addEventListener('load', () => {
 
 <!-- APP -->
 <div id="app">
-
-  <!-- HEADER -->
   <div class="header">
     <div class="header-left">
       <div>
@@ -804,7 +630,6 @@ window.addEventListener('load', () => {
     </div>
   </div>
 
-  <!-- STATS BAR -->
   <div class="stats-bar" id="stats-bar">
     <div class="stat-card">
       <span class="stat-icon">📅</span>
@@ -836,7 +661,6 @@ window.addEventListener('load', () => {
     </div>
   </div>
 
-  <!-- NAV -->
   <div class="nav-bar">
     <div class="nav-controls">
       <button class="nav-btn" onclick="navigate(-1)">‹</button>
@@ -846,19 +670,17 @@ window.addEventListener('load', () => {
     <div class="nav-period" id="nav-period">Junio 2026</div>
   </div>
 
-  <!-- LEYENDA -->
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:var(--libre)"></div>Disponible</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--ocupado)"></div>Ocupado</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--bloqueado)"></div>Bloqueado</div>
     <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div>Feriado</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--pasado)"></div>Pasado</div>
   </div>
 
-  <!-- VISTAS -->
   <div id="view-mes"></div>
   <div id="view-semana" style="display:none"></div>
   <div id="view-dia" style="display:none"></div>
-
 </div>
 
 <!-- MODAL SLOT -->
@@ -878,29 +700,17 @@ window.addEventListener('load', () => {
       <label>Fecha y hora</label>
       <select id="nueva-cita-slot"></select>
     </div>
-
-    <!-- AUTOCOMPLETE PACIENTE -->
     <div class="form-group" style="position:relative">
       <label>Paciente</label>
-      <input type="text" id="paciente-search" placeholder="Escribe el nombre..." 
+      <input type="text" id="paciente-search" placeholder="Escribe el nombre..."
         oninput="buscarPaciente(this.value)" autocomplete="off" />
       <div id="paciente-dropdown" style="
-        display:none;
-        position:absolute;
-        top:100%;
-        left:0;right:0;
-        background:white;
-        border:1.5px solid var(--border);
-        border-radius:8px;
-        max-height:200px;
-        overflow-y:auto;
-        z-index:300;
-        box-shadow:0 4px 16px rgba(0,0,0,0.1);
-        margin-top:4px;
+        display:none;position:absolute;top:100%;left:0;right:0;
+        background:white;border:1.5px solid var(--border);border-radius:8px;
+        max-height:200px;overflow-y:auto;z-index:300;
+        box-shadow:0 4px 16px rgba(0,0,0,0.1);margin-top:4px;
       "></div>
     </div>
-
-    <!-- INFO PACIENTE SELECCIONADO -->
     <div id="paciente-seleccionado" style="display:none;background:var(--accent-light);border-radius:8px;padding:12px;margin-bottom:16px;border:1.5px solid var(--accent)">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div>
@@ -910,8 +720,6 @@ window.addEventListener('load', () => {
         <button onclick="limpiarPaciente()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted)">✕</button>
       </div>
     </div>
-
-    <!-- FORMULARIO NUEVO PACIENTE (oculto por defecto) -->
     <div id="nuevo-paciente-form" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-bottom:16px;border:1.5px dashed var(--border)">
       <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--accent)">➕ Registrar nuevo paciente</div>
       <div class="form-group" style="margin-bottom:10px">
@@ -923,7 +731,6 @@ window.addEventListener('load', () => {
         <input type="text" id="nuevo-telefono" placeholder="584121234567" />
       </div>
     </div>
-
     <div class="form-group">
       <label>Motivo de consulta (opcional)</label>
       <input type="text" id="nueva-cita-tipo" placeholder="Ej: Limpieza, Brackets, Control" />
@@ -962,11 +769,9 @@ window.addEventListener('load', () => {
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────
 const BASE_ID = 'appLFXW22Zt1LUKBx';
 const TABLES = {
   slots: 'tblGoYze4OEhwGRl4',
@@ -984,7 +789,6 @@ let citasData = [];
 let bloqueosData = [];
 let selectedSlot = null;
 
-// ─── SETUP ────────────────────────────────────────────
 function getTokenFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return params.get('token') || '';
@@ -1001,17 +805,11 @@ function saveToken() {
 function initToken() {
   const urlToken = getTokenFromUrl();
   const savedToken = localStorage.getItem('airtable_token');
-  if (urlToken) {
-    API_TOKEN = urlToken;
-    return true;
-  } else if (savedToken) {
-    API_TOKEN = savedToken;
-    return true;
-  }
+  if (urlToken) { API_TOKEN = urlToken; return true; }
+  else if (savedToken) { API_TOKEN = savedToken; return true; }
   return false;
 }
 
-// ─── API ──────────────────────────────────────────────
 async function airtableGet(table, params = '') {
   const res = await fetch(
     `https://api.airtable.com/v0/${BASE_ID}/${table}?${params}`,
@@ -1059,7 +857,6 @@ async function airtablePatch(table, id, fields) {
   return res.json();
 }
 
-// ─── LOAD DATA ────────────────────────────────────────
 async function loadData() {
   const [slots, citas, bloqueos] = await Promise.all([
     airtableGet(TABLES.slots, 'fields[]=fecha_hora_inicio&fields[]=fecha_hora_fin&fields[]=estado_slot&fields[]=disponible&maxRecords=2000'),
@@ -1078,7 +875,10 @@ function getSlotStatus(slot) {
   return 'libre';
 }
 
+// FIX: días pasados no muestran slots
 function getSlotsForDate(dateStr) {
+  const today = toLocalDateStr(new Date());
+  if (dateStr < today) return [];
   return slotsData.filter(s => {
     const d = new Date(s.fields.fecha_hora_inicio);
     return toLocalDateStr(d) === dateStr;
@@ -1087,7 +887,6 @@ function getSlotsForDate(dateStr) {
 
 function isBloqueado(dateStr) {
   return bloqueosData.some(b => {
-    // Comparar solo la parte de fecha ignorando la hora
     const ini = (b.fields.fecha_inicio || '').substring(0, 10);
     const fin = (b.fields.fecha_fin || '').substring(0, 10);
     return dateStr >= ini && dateStr <= fin;
@@ -1104,10 +903,12 @@ function formatHour(dateStr) {
   });
 }
 
-// ─── STATS ────────────────────────────────────────────
 function updateStats() {
   const today = toLocalDateStr(new Date());
-  const todaySlots = getSlotsForDate(today);
+  const todaySlots = slotsData.filter(s => {
+    const d = new Date(s.fields.fecha_hora_inicio);
+    return toLocalDateStr(d) === today;
+  });
   const libres = todaySlots.filter(s => getSlotStatus(s) === 'libre').length;
   const ocupados = todaySlots.filter(s => getSlotStatus(s) === 'ocupado').length;
   const bloqueados = todaySlots.filter(s => getSlotStatus(s) === 'bloqueado').length;
@@ -1117,7 +918,6 @@ function updateStats() {
   document.getElementById('stat-bloqueados').textContent = bloqueados;
 }
 
-// ─── VIEWS ────────────────────────────────────────────
 function setView(view) {
   currentView = view;
   document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -1168,7 +968,6 @@ function goToday() {
   renderCurrentView();
 }
 
-// ─── VISTA MES ────────────────────────────────────────
 function renderMes() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -1181,19 +980,18 @@ function renderMes() {
   let html = `<div class="month-grid">`;
   dias.forEach(d => html += `<div class="month-header-cell">${d}</div>`);
 
-  // Celdas del mes anterior
   const prevMonth = new Date(year, month, 0);
   for (let i = startDow - 1; i >= 0; i--) {
     html += `<div class="month-cell other-month"><div class="day-number">${prevMonth.getDate() - i}</div></div>`;
   }
 
-  // Celdas del mes actual
   for (let d = 1; d <= daysInMonth; d++) {
     const dateObj = new Date(year, month, d);
     const dateStr = toLocalDateStr(dateObj);
     const isToday = dateStr === today;
+    const isPast = dateStr < today;
     const bloq = isBloqueado(dateStr);
-    const daySlots = getSlotsForDate(dateStr);
+    const daySlots = getSlotsForDate(dateStr); // ya filtra pasados
     const libres = daySlots.filter(s => getSlotStatus(s) === 'libre').length;
     const ocupados = daySlots.filter(s => getSlotStatus(s) === 'ocupado').length;
     const total = daySlots.length;
@@ -1201,15 +999,20 @@ function renderMes() {
 
     let cellClass = 'month-cell';
     if (isToday) cellClass += ' today';
-    if (bloq) cellClass += ' bloqueado';
+    else if (isPast) cellClass += ' pasado';
+    else if (bloq) cellClass += ' bloqueado';
 
-    html += `<div class="${cellClass}" onclick="clickDay('${dateStr}')">
-      <div class="day-number${isToday ? ' today-num' : ''}">
+    const clickHandler = isPast ? '' : `onclick="clickDay('${dateStr}')"`;
+
+    html += `<div class="${cellClass}" ${clickHandler}>
+      <div class="day-number${isToday ? ' today-num' : isPast ? ' pasado-num' : ''}">
         ${d}
         ${ocupados > 0 ? `<span class="day-badge">${ocupados}</span>` : ''}
       </div>`;
 
-    if (bloq) {
+    if (isPast) {
+      // Días pasados — vacíos, sin stats
+    } else if (bloq) {
       html += `<div class="day-stats"><div class="stat-row" style="color:var(--bloqueado)">🔒</div></div>`;
     } else if (total > 0) {
       html += `<div class="day-stats">
@@ -1222,7 +1025,6 @@ function renderMes() {
     html += `</div>`;
   }
 
-  // Celdas del mes siguiente
   const totalCells = startDow + daysInMonth;
   const remaining = (7 - (totalCells % 7)) % 7;
   for (let i = 1; i <= remaining; i++) {
@@ -1230,8 +1032,6 @@ function renderMes() {
   }
 
   html += `</div>`;
-
-  // Botón bloquear día
   html += `<div style="text-align:center;margin-top:16px">
     <button onclick="openBloqueoModal()" style="padding:10px 20px;border:1.5px solid var(--border);background:white;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif">
       🔒 Bloquear un día
@@ -1249,7 +1049,6 @@ function clickDay(dateStr) {
   });
 }
 
-// ─── VISTA SEMANA ─────────────────────────────────────
 function getWeekStart(date) {
   const d = new Date(date);
   const day = d.getDay();
@@ -1262,7 +1061,6 @@ function renderSemana() {
   const today = toLocalDateStr(new Date());
   const hours = [];
   for (let h = 7; h <= 20; h++) hours.push(h);
-
   const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   let html = `<div class="week-grid">
@@ -1276,33 +1074,34 @@ function renderSemana() {
     dayDate.setDate(weekStart.getDate() + d);
     const dateStr = toLocalDateStr(dayDate);
     const isToday = dateStr === today;
+    const isPast = dateStr < today;
     const daySlots = getSlotsForDate(dateStr);
 
-    html += `<div>
-      <div class="week-day-header${isToday ? ' today-col' : ''}">
-        <div class="week-day-name">${dias[d]}</div>
-        <div class="week-day-num${isToday ? ' today-num' : ''}">${dayDate.getDate()}</div>
-      </div>
-      <div class="week-slot-col" style="position:relative;min-height:${hours.length * 60}px">`;
+    let headerClass = 'week-day-header';
+    if (isToday) headerClass += ' today-col';
+    else if (isPast) headerClass += ' pasado-col';
 
-    hours.forEach(h => {
-      html += `<div class="week-hour-row"></div>`;
-    });
+    html += `<div>
+      <div class="${headerClass}">
+        <div class="week-day-name">${dias[d]}</div>
+        <div class="week-day-num${isToday ? ' today-num' : isPast ? ' pasado-num' : ''}">${dayDate.getDate()}</div>
+      </div>
+      <div class="week-slot-col" style="position:relative;min-height:${hours.length * 60}px${isPast ? ';opacity:0.4;pointer-events:none' : ''}">`;
+
+    hours.forEach(() => { html += `<div class="week-hour-row"></div>`; });
 
     daySlots.forEach(slot => {
       const start = new Date(slot.fields.fecha_hora_inicio);
       const startH = start.toLocaleString('en-US', { hour: 'numeric', hour12: false, timeZone: 'America/Caracas' });
       const startM = start.toLocaleString('en-US', { minute: 'numeric', timeZone: 'America/Caracas' });
       const topPx = (parseInt(startH) - 7) * 60 + parseInt(startM);
-      const duration = 45;
-      const heightPx = duration;
       const status = getSlotStatus(slot);
       const titulo = slot.fields.titulo_cita || '';
       const nombrePaciente = titulo ? titulo.split('·')[0].trim() : getNombrePacienteSlot(slot.id);
       const label = status === 'ocupado' ? (nombrePaciente || 'Cita') : (status === 'libre' ? '✓ Libre' : '🔒');
 
-      html += `<div class="week-slot-block ${status}" 
-        style="top:${topPx}px;height:${heightPx}px"
+      html += `<div class="week-slot-block ${status}"
+        style="top:${topPx}px;height:45px"
         onclick="clickSlot('${slot.id}')">
         <div>${formatHour(slot.fields.fecha_hora_inicio)}</div>
         <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</div>
@@ -1316,9 +1115,10 @@ function renderSemana() {
   document.getElementById('view-semana').innerHTML = html;
 }
 
-// ─── VISTA DÍA ────────────────────────────────────────
 function renderDia() {
   const dateStr = toLocalDateStr(currentDate);
+  const today = toLocalDateStr(new Date());
+  const isPast = dateStr < today;
   const daySlots = getSlotsForDate(dateStr).sort((a, b) =>
     new Date(a.fields.fecha_hora_inicio) - new Date(b.fields.fecha_hora_inicio)
   );
@@ -1326,7 +1126,13 @@ function renderDia() {
 
   let html = `<div class="day-slots-list">`;
 
-  if (bloq) {
+  if (isPast) {
+    html += `<div style="text-align:center;padding:40px;color:var(--text-muted)">
+      <div style="font-size:40px;margin-bottom:12px">📆</div>
+      <div style="font-weight:600;font-size:16px;margin-bottom:6px">Día pasado</div>
+      <div style="font-size:13px">Este día ya transcurrió</div>
+    </div>`;
+  } else if (bloq) {
     html += `<div style="text-align:center;padding:40px;color:var(--text-muted)">
       <div style="font-size:40px;margin-bottom:12px">🔒</div>
       <div style="font-weight:600;font-size:16px;margin-bottom:6px">Día bloqueado</div>
@@ -1344,7 +1150,6 @@ function renderDia() {
       const hora = formatHour(slot.fields.fecha_hora_inicio);
       const horaFin = formatHour(slot.fields.fecha_hora_fin);
       const titulo = slot.fields.titulo_cita || '';
-      // Extraer solo el nombre del paciente del titulo (formato: "Nombre · fecha")
       const nombrePaciente = titulo ? titulo.split('·')[0].trim() : getNombrePacienteSlot(slot.id);
 
       html += `<div class="day-slot-card ${status}" onclick="clickSlot('${slot.id}')">
@@ -1360,15 +1165,16 @@ function renderDia() {
     });
   }
 
-  html += `<button onclick="openBloqueoModal()" style="margin-top:8px;padding:12px;border:1.5px dashed var(--border);background:transparent;border-radius:10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:Inter,sans-serif;width:100%">
-    🔒 Bloquear este día
-  </button>`;
+  if (!isPast) {
+    html += `<button onclick="openBloqueoModal()" style="margin-top:8px;padding:12px;border:1.5px dashed var(--border);background:transparent;border-radius:10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:Inter,sans-serif;width:100%">
+      🔒 Bloquear este día
+    </button>`;
+  }
 
   html += `</div>`;
   document.getElementById('view-dia').innerHTML = html;
 }
 
-// ─── CLICK SLOT ───────────────────────────────────────
 function clickSlot(slotId) {
   selectedSlot = slotsData.find(s => s.id === slotId);
   if (!selectedSlot) return;
@@ -1415,16 +1221,11 @@ function agendarDesdeSlot(slotId) {
   });
   const select = document.getElementById('nueva-cita-slot');
   select.innerHTML = `<option value="${slotId}">${fecha} – ${hora}</option>`;
-
-  // Resetear formulario paciente
   limpiarPaciente();
   document.getElementById('nueva-cita-tipo').value = '';
   document.getElementById('nuevo-nombre').value = '';
   document.getElementById('nuevo-telefono').value = '';
-
-  // Cargar pacientes
   cargarPacientes();
-
   document.getElementById('modal-nueva-cita').classList.add('open');
 }
 
@@ -1433,19 +1234,14 @@ async function cancelarCita(slotId) {
   const slot = slotsData.find(s => s.id === slotId);
   if (!slot) return;
   try {
-    // Liberar slot
     await airtablePatch(TABLES.slots, slotId, { estado_slot: 'Libre', disponible: true });
-
-    // Buscar y cancelar la cita vinculada
     const cita = citasData.find(c => {
       const slots = c.fields.slot_disponibilidad || [];
       return slots.includes(slotId) && c.fields.estado_cita !== 'Cancelada';
     });
-
     if (cita) {
       await airtablePatch(TABLES.citas, cita.id, { estado_cita: 'Cancelada' });
     }
-
     showToast('Cita cancelada, slot liberado', 'success');
     await refreshData();
   } catch(e) {
@@ -1454,7 +1250,6 @@ async function cancelarCita(slotId) {
 }
 
 function getNombrePacienteSlot(slotId) {
-  // Solo mostrar nombre si la cita está activa (no cancelada)
   const cita = citasData.find(c => {
     const slots = c.fields.slot_disponibilidad || [];
     const estado = c.fields.estado_cita || '';
@@ -1465,7 +1260,6 @@ function getNombrePacienteSlot(slotId) {
   return titulo ? titulo.split('·')[0].trim() : '';
 }
 
-// ─── AUTOCOMPLETE PACIENTES ───────────────────────────
 let pacientesData = [];
 let pacienteSeleccionadoId = null;
 let searchTimeout = null;
@@ -1483,13 +1277,7 @@ async function cargarPacientes() {
 function buscarPaciente(query) {
   clearTimeout(searchTimeout);
   const dropdown = document.getElementById('paciente-dropdown');
-  const seleccionado = document.getElementById('paciente-seleccionado');
-  const nuevoForm = document.getElementById('nuevo-paciente-form');
-
-  if (!query || query.length < 1) {
-    dropdown.style.display = 'none';
-    return;
-  }
+  if (!query || query.length < 1) { dropdown.style.display = 'none'; return; }
 
   searchTimeout = setTimeout(() => {
     const q = query.toLowerCase().trim();
@@ -1498,35 +1286,22 @@ function buscarPaciente(query) {
     ).slice(0, 8);
 
     let html = '';
-
     if (resultados.length > 0) {
       resultados.forEach(p => {
         const nombre = p.fields.nombre_completo || '';
         const tel = p.fields.telefono_wa || '';
         html += `<div onclick="seleccionarPaciente('${p.id}','${nombre}','${tel}')" style="
-          padding:10px 14px;
-          cursor:pointer;
-          border-bottom:1px solid var(--border);
-          transition:background 0.1s;
-        " onmouseover="this.style.background='var(--accent-light)'" 
-           onmouseout="this.style.background='white'">
+          padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s;
+        " onmouseover="this.style.background='var(--accent-light)'" onmouseout="this.style.background='white'">
           <div style="font-weight:500;font-size:14px">${nombre}</div>
           ${tel ? `<div style="font-size:12px;color:var(--text-muted)">${tel}</div>` : ''}
         </div>`;
       });
     }
 
-    // Siempre mostrar opción de registrar nuevo
     html += `<div onclick="mostrarNuevoPaciente('${query}')" style="
-      padding:10px 14px;
-      cursor:pointer;
-      color:var(--accent);
-      font-weight:500;
-      font-size:13px;
-      background:var(--accent-light);
-      display:flex;
-      align-items:center;
-      gap:6px;
+      padding:10px 14px;cursor:pointer;color:var(--accent);font-weight:500;font-size:13px;
+      background:var(--accent-light);display:flex;align-items:center;gap:6px;
     " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
       ➕ Registrar "${query}" como nuevo paciente
     </div>`;
@@ -1564,7 +1339,6 @@ function limpiarPaciente() {
   document.getElementById('paciente-search').focus();
 }
 
-// Cerrar dropdown al click fuera
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#paciente-search') && !e.target.closest('#paciente-dropdown')) {
     const dd = document.getElementById('paciente-dropdown');
@@ -1572,11 +1346,13 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ─── NUEVA CITA ───────────────────────────────────────
 function openNewCitaModal() {
-  // Cargar slots libres
   const libres = slotsData
-    .filter(s => getSlotStatus(s) === 'libre')
+    .filter(s => {
+      const dateStr = toLocalDateStr(new Date(s.fields.fecha_hora_inicio));
+      const today = toLocalDateStr(new Date());
+      return getSlotStatus(s) === 'libre' && dateStr >= today;
+    })
     .sort((a, b) => new Date(a.fields.fecha_hora_inicio) - new Date(b.fields.fecha_hora_inicio))
     .slice(0, 100);
 
@@ -1589,20 +1365,16 @@ function openNewCitaModal() {
     return `<option value="${s.id}">${fecha} · ${hora}</option>`;
   }).join('');
 
-  // Resetear formulario
   limpiarPaciente();
   document.getElementById('nueva-cita-tipo').value = '';
-
-  // Cargar pacientes en background
   cargarPacientes();
-
   document.getElementById('modal-nueva-cita').classList.add('open');
 }
 
 let creandoCita = false;
 
 async function crearCitaManual() {
-  if (creandoCita) return; // Evitar doble ejecución
+  if (creandoCita) return;
   creandoCita = true;
 
   const btnGuardar = document.querySelector('#modal-nueva-cita .btn-confirm');
@@ -1611,51 +1383,41 @@ async function crearCitaManual() {
   const slotId = document.getElementById('nueva-cita-slot').value;
   const motivo = document.getElementById('nueva-cita-tipo').value.trim();
 
-  if (!slotId) { showToast('Selecciona un horario', 'error'); return; }
+  if (!slotId) { showToast('Selecciona un horario', 'error'); creandoCita = false; return; }
 
   const slot = slotsData.find(s => s.id === slotId);
-  if (!slot) { showToast('Slot no encontrado', 'error'); return; }
+  if (!slot) { showToast('Slot no encontrado', 'error'); creandoCita = false; return; }
 
   let pacienteId = pacienteSeleccionadoId;
 
-  // Si no hay paciente seleccionado verificar si está registrando uno nuevo
   if (!pacienteId) {
     const nuevoNombre = document.getElementById('nuevo-nombre').value.trim();
     const nuevoTel = document.getElementById('nuevo-telefono').value.trim().replace(/\D/g, '');
 
     if (!nuevoNombre && !document.getElementById('paciente-search').value.trim()) {
       showToast('Selecciona o registra un paciente', 'error');
+      creandoCita = false;
+      if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.textContent = 'Guardar cita'; }
       return;
     }
 
     if (nuevoNombre) {
-      // Crear paciente nuevo
       try {
-        const camposPaciente = {
-          nombre_completo: nuevoNombre,
-          canal_origen: 'Presencial',
-          estado_paciente: 'Nuevo'
-        };
+        const camposPaciente = { nombre_completo: nuevoNombre, canal_origen: 'Presencial', estado_paciente: 'Nuevo' };
         if (nuevoTel) camposPaciente.telefono_wa = nuevoTel;
-
         const nuevoPaciente = await airtablePost(TABLES.pacientes, camposPaciente);
         pacienteId = nuevoPaciente.id;
-
-        // Agregar a la lista local para futuras búsquedas
-        pacientesData.push({
-          id: nuevoPaciente.id,
-          fields: { nombre_completo: nuevoNombre, telefono_wa: nuevoTel }
-        });
+        pacientesData.push({ id: nuevoPaciente.id, fields: { nombre_completo: nuevoNombre, telefono_wa: nuevoTel } });
       } catch(pe) {
-        console.warn('Error creando paciente:', pe);
         showToast('Error al registrar paciente', 'error');
+        creandoCita = false;
+        if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.textContent = 'Guardar cita'; }
         return;
       }
     }
   }
 
   try {
-    // Crear cita
     const citaFields = {
       fecha_hora: slot.fields.fecha_hora_inicio,
       estado_cita: 'Confirmada',
@@ -1667,14 +1429,8 @@ async function crearCitaManual() {
     if (motivo) citaFields.motivo_consulta = motivo;
 
     await airtablePost(TABLES.citas, citaFields);
+    await airtablePatch(TABLES.slots, slotId, { estado_slot: 'Ocupado', disponible: false });
 
-    // Marcar slot como ocupado
-    await airtablePatch(TABLES.slots, slotId, {
-      estado_slot: 'Ocupado',
-      disponible: false
-    });
-
-    // Limpiar formulario
     limpiarPaciente();
     document.getElementById('nueva-cita-tipo').value = '';
     document.getElementById('nuevo-nombre').value = '';
@@ -1683,9 +1439,7 @@ async function crearCitaManual() {
     closeModal('modal-nueva-cita');
     showToast('✅ Cita agendada correctamente', 'success');
     await refreshData();
-
   } catch(e) {
-    console.error('Error al guardar cita:', e);
     showToast('Error: ' + (e.message || 'Verifica los datos'), 'error');
   } finally {
     creandoCita = false;
@@ -1693,7 +1447,6 @@ async function crearCitaManual() {
   }
 }
 
-// ─── BLOQUEO ──────────────────────────────────────────
 function openBloqueoModal() {
   const dateStr = toLocalDateStr(currentDate);
   document.getElementById('bloqueo-fecha').value = dateStr;
@@ -1708,8 +1461,6 @@ async function guardarBloqueo() {
   if (!fecha) { showToast('Selecciona una fecha', 'error'); return; }
 
   try {
-    // Guardar con hora explícita en Venezuela para evitar problemas de timezone
-    // Usamos mediodía UTC-4 = 16:00 UTC para que caiga bien en cualquier zona
     const fechaInicio = fecha + 'T12:00:00.000Z';
     const fechaFin = fecha + 'T12:00:00.000Z';
 
@@ -1721,7 +1472,6 @@ async function guardarBloqueo() {
       activo: true
     });
 
-    // Bloquear todos los slots de ese día
     const daySlots = getSlotsForDate(fecha);
     for (const slot of daySlots) {
       if (getSlotStatus(slot) === 'libre') {
@@ -1737,7 +1487,6 @@ async function guardarBloqueo() {
   }
 }
 
-// ─── UTILS ────────────────────────────────────────────
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
@@ -1755,11 +1504,9 @@ async function refreshData() {
   renderCurrentView();
 }
 
-// ─── INIT ─────────────────────────────────────────────
 async function initApp() {
   document.getElementById('setup-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-
   document.getElementById('view-mes').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando agenda...</div>';
 
   try {
@@ -1774,9 +1521,7 @@ async function initApp() {
 }
 
 window.onload = () => {
-  if (initToken()) {
-    initApp();
-  }
+  if (initToken()) initApp();
 };
 </script>
 </body>
